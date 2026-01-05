@@ -1,37 +1,24 @@
-import { useEffect, useRef, useState } from 'react'
-import './App.css'
+import { useEffect, useRef } from "react";
+import ChatBox from "./Component/ChatBox";
 
 function App() {
-  const [socket, setSocket] = useState();
-  const inputRef = useRef();
+  // const [wsRef, setWsRefs] = useState<WebSocket | null>();
+  const wsRef = useRef<WebSocket | null>(null);
 
-  function sendMessage(){
 
-    if(!socket) return;
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8080");
 
-    const message = inputRef.current.value;
-    //@ts-ignore
-    socket.send(message);
-  }
+    wsRef.current = ws;
 
-  useEffect(()=>{
-    const ws = new  WebSocket("ws://localhost:8080");
-
-    //@ts-ignore
-    setSocket(ws);
-
-    ws.onmessage = (e) =>{
-      alert(e.data);
-    }
-
-  },[])
+  return () => ws.close();
+  }, []);
 
   return (
-    <div>
-      <input ref={inputRef} type='text' name='message box'></input>
-      <button type='submit' onClick={sendMessage}>Send</button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+      <ChatBox wsRef={wsRef} />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
